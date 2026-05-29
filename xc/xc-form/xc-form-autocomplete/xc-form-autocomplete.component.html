@@ -2,7 +2,9 @@
   <mat-label>{{label}}</mat-label>
   <input matInput autocomplete="off" [type]="type" [placeholder]="placeholder" [formControl]="formControl"
     [matAutocomplete]="auto" (mousedown)="mousedown($event)" (focus)="onfocus($event)" (blur)="onblur($event)"
-    [readonly]="readonly" [attr.aria-label]="ariaLabel" [tabIndex]="(readonly || disabled) ? -1 : tabIndex"
+    [readonly]="readonly" [attr.aria-label]="ariaLabel"
+    [attr.aria-roledescription]="asDropdown ? 'dropdown' : null"
+    [tabIndex]="(readonly || disabled) ? -1 : tabIndex"
     [required]="required">
   <!-- <ng-container *ngIf="readonly || disabled">
     <input
