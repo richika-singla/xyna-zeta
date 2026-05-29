@@ -105,17 +105,12 @@ export class XcStructureTreeDataSource extends XcBaseStructureTreeDataSource {
             this.container,
             this.readonlyMode,
             // mark for a change, which eventually updates the autocomplete component
-            () => this.triggerMarkForChange()
+            () => this.triggerMarkForChange(),
+            this.i18n
         );
         templates.filter(template => template instanceof XcFormTemplate).forEach(template => {
             template.floatLabel = FloatStyle.always;
-
-            /**
-             * @todo fixme: With FloatStyle.never, the label is used as a placeholder.
-             * The tree does not need that, because it shows the label in front of the form control.
-             * In addition to that, the placeholder overlaps with the checkbox of a checkbox-template.
-             * So clear the label.
-            */
+            // Field name is shown in the tree left column; booleans use a single Yes/No dropdown.
             template.label = '';
         });
         return templates;

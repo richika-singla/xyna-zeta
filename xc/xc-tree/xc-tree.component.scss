@@ -98,23 +98,6 @@ $template-width: 256px;
                     width: $template-width;
                 }
 
-                xc-checkbox {
-                    display: flex;
-                    position: absolute;
-                    z-index: 1;
-                    height: 100%;
-                    top: 0;
-                    
-                    .mat-mdc-checkbox {
-                        display: flex;
-                    }
-
-                    label {
-                        color: transparent;
-                        user-select: none;
-                    }
-                }
-
                 xc-icon-button {
                     margin-left: 8px;
                 }
@@ -124,10 +107,6 @@ $template-width: 256px;
                 width: $template-width;
                 height: 34px;
             }
-        }
-
-        xc-template+xc-template .mat-mdc-input-element {
-            padding-left: 34px;
         }
     }
 

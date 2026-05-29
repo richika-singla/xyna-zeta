@@ -17,10 +17,11 @@
  */
 import { Xo, XoStructureField } from '../../api';
 import { defineAccessorProperty } from '../../base';
+import { I18nService } from '../../i18n';
 import { XcIdentityDataWrapper, XcStringFloatDataWrapper, XcStringIntegerDataWrapper } from '../shared/xc-data-wrapper';
 import { XcAutocompleteDataWrapper } from '../xc-form/xc-form-autocomplete/xc-form-autocomplete.component';
 import { XcFormValidatorNumber } from '../xc-form/xc-form-base/xc-form-validators.directive';
-import { XcCheckboxTemplate, XcFormAutocompleteTemplate, XcFormInputTemplate, XcFormTemplate, XcTemplate } from './xc-template';
+import { XcFormAutocompleteTemplate, XcFormInputTemplate, XcFormTemplate, XcTemplate } from './xc-template';
 
 
 export class XcTemplateFactory {
@@ -30,7 +31,35 @@ export class XcTemplateFactory {
     static readonly PLACEHOLDER_FALSE = 'false';
 
 
-    static createTemplates(field: XoStructureField, instance: Xo, readonly = false, autocompleteValuesChange?: () => void): XcTemplate[] {
+    static getBooleanOptions(nullable: boolean, i18n?: I18nService): { name: string; value: boolean }[] {
+        const yes = i18n ? i18n.translate('zeta.xc.tree.boolean.yes') : 'Yes';
+        const no = i18n ? i18n.translate('zeta.xc.tree.boolean.no') : 'No';
+        const options = [{ name: no, value: false }, { name: yes, value: true }];
+        if (nullable) {
+            const unset = i18n ? i18n.translate('zeta.xc.tree.boolean.unset') : 'Not set';
+            return [{ name: unset, value: null as unknown as boolean }, ...options];
+        }
+        return options;
+    }
+
+
+    static formatBooleanForReadonly(value: unknown, nullable: boolean, i18n?: I18nService): string {
+        if (value == null) {
+            return nullable
+                ? (i18n ? i18n.translate('zeta.xc.tree.boolean.unset') : 'Not set')
+                : XcTemplateFactory.PLACEHOLDER_NULL;
+        }
+        if (value === true) {
+            return i18n ? i18n.translate('zeta.xc.tree.boolean.yes') : 'Yes';
+        }
+        if (value === false) {
+            return i18n ? i18n.translate('zeta.xc.tree.boolean.no') : 'No';
+        }
+        return String(value);
+    }
+
+
+    static createTemplates(field: XoStructureField, instance: Xo, readonly = false, autocompleteValuesChange?: () => void, i18n?: I18nService): XcTemplate[] {
         const create = (getter: () => any, setter: (value: any) => void, nullable: boolean): XcTemplate[] => {
             const templates: XcTemplate[] = [];
 
@@ -47,31 +76,14 @@ export class XcTemplateFactory {
                 templates.push(new XcFormAutocompleteTemplate(enumeratedDataWrapper));
             } else if (field.typeFqn.boolLike) {
                 // --< BOOLEAN >--
-                const autocompleteDataWrapper = new XcAutocompleteDataWrapper(
+                const autocompleteTemplate = new XcFormAutocompleteTemplate(new XcAutocompleteDataWrapper(
                     getter,
                     setter,
-                    [{name: false.toString(), value: false}, {name: true.toString(), value: true}],
+                    XcTemplateFactory.getBooleanOptions(nullable, i18n),
                     nullable
-                );
-                // create checkbox template
-                const checkboxTemplate = new XcCheckboxTemplate(new XcIdentityDataWrapper(
-                    getter,
-                    value => {
-                        setter(value);
-                        // update datawrapper, since it can't recognize underlying model changes
-                        autocompleteDataWrapper.update();
-                    }
                 ));
-                // specify indeterminate accessor for checkbox template
-                if (nullable) {
-                    defineAccessorProperty<XcCheckboxTemplate, boolean>(
-                        checkboxTemplate,
-                        'indeterminate',
-                        () => getter() == null
-                    );
-                }
-                templates.push(checkboxTemplate);
-                templates.push(new XcFormAutocompleteTemplate(autocompleteDataWrapper));
+                autocompleteTemplate.asDropdown = true;
+                templates.push(autocompleteTemplate);
             } else if (field.typeFqn.stringLike) {
                 // --< STRING >--
                 templates.push(new XcFormInputTemplate(new XcIdentityDataWrapper(getter, setter)));
@@ -85,14 +97,15 @@ export class XcTemplateFactory {
             return templates;
         };
 
-        return this.createTemplatesWithParameters(field, instance, create, readonly);
+        return this.createTemplatesWithParameters(field, instance, create, readonly, i18n);
     }
 
 
 
     static createTemplatesWithParameters(field: XoStructureField, instance: Xo,
         createFn: (getter: () => any, setter: (value: any) => void, nullable: boolean) => XcTemplate[],
-        readonly = false
+        readonly = false,
+        i18n?: I18nService
     ): XcTemplate[] {
         // set nullable and placeholder
         const nullable = field.typeFqn.isNullablePrimitive();
@@ -113,9 +126,11 @@ export class XcTemplateFactory {
         // readonly mode: return text
         if (readonly) {
             const value = init();
-            const text  = value != null
-                ? (field.typeFqn.stringLike ? '"' +  value + '"' : value)
-                : placeholder;
+            const text = field.typeFqn.boolLike
+                ? XcTemplateFactory.formatBooleanForReadonly(value, nullable, i18n)
+                : value != null
+                    ? (field.typeFqn.stringLike ? '"' + value + '"' : value)
+                    : placeholder;
             return [text];
         }
 
