@@ -26,5 +26,9 @@ export const xcTreeTranslations_deDE: I18nTranslation[] = [
     { key: 'zeta.xc.tree.add-element', value: 'Element hinzufügen' },
     { key: 'zeta.xc.tree.remove-element', value: 'Element entfernen' },
     { key: 'zeta.xc.tree.expand-collapse-arialabel', value: 'auf- und zuklappen von' },
-    { key: 'zeta.xc.tree.expand-collapse-tooltip', value: 'Auf-/Zuklappen (rekursiv mit STRG)' }
+    { key: 'zeta.xc.tree.expand-collapse-tooltip', value: 'Auf-/Zuklappen (rekursiv mit STRG)' },
+
+    { key: 'zeta.xc.tree.boolean.yes', value: 'Ja' },
+    { key: 'zeta.xc.tree.boolean.no', value: 'Nein' },
+    { key: 'zeta.xc.tree.boolean.unset', value: 'Nicht gesetzt' }
 ];
