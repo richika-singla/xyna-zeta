@@ -188,6 +188,11 @@ export class XcTableComponent implements AfterViewInit, OnDestroy {
     }
 
 
+    get actionsColumnHeaderLabel(): string {
+        return this._i18n.translate('xcTable.actionsColumnHeader');
+    }
+
+
     // TODO: Skipped for migration because:
     //  Accessor queries cannot be migrated as they are too complex.
     @ViewChild(MatSort, { static: false })
@@ -379,7 +384,8 @@ export class XcTableComponent implements AfterViewInit, OnDestroy {
             path: this.actionColumnPath,
             name: signal('xcTable.actionsColumnHeader'),
             disableSort: true,
-            disableFilter: true
+            disableFilter: true,
+            shrink: true
         };
     }
 

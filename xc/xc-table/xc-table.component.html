@@ -42,8 +42,16 @@
   <!-- Container template view of a table body row -->
   @for (column of columns; let i = $index; track i) {
     <ng-container [matColumnDef]="getColumnID(column)">
-      <th mat-header-cell *matHeaderCellDef attr.aria-sort="{{getAriaSortForColumn(column)}}" scope="col">
-        <span mat-sort-header [disabled]="column.disableSort">{{ translateLabels ? i18n.translateSignal(getColumnLabel(column))() : getColumnLabel(column) || '&nbsp;'}}</span>
+      <th mat-header-cell *matHeaderCellDef attr.aria-sort="{{getAriaSortForColumn(column)}}" scope="col"
+        [class.shrink]="column.shrink"
+      >
+        <span mat-sort-header [disabled]="column.disableSort">
+          @if (leadingActions && i === 0) {
+            {{ actionsColumnHeaderLabel }}
+          } @else {
+            {{ translateLabels ? i18n.translateSignal(getColumnLabel(column))() : getColumnLabel(column) || '&nbsp;'}}
+          }
+        </span>
         <div class="filter-container">
           @if (allowFilter) {
             <xc-template [xc-template-instance]="getColumnFilterTemplate(column)"
